@@ -15,15 +15,43 @@ namespace WebApp.Controllers
         };
 
         [HttpGet("[action]")]
-        public IEnumerable<WeatherForecast> WeatherForecasts()
+        public ActionResult<IEnumerable<WeatherForecast>> WeatherForecasts()
         {
             var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+
+            int Occasion = rng.Next(21) % 5;
+
+            switch (Occasion)
             {
-                DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            });
+                case 0:
+                    // long
+                    System.Threading.Thread.Sleep (4000);
+                    goto case 2;
+
+                case 1:
+                    // way too long
+                    System.Threading.Thread.Sleep (10000);
+                    goto case 2;
+
+                case 2:
+                    // okay
+                    return Ok (Enumerable.Range(1, 6).Select(index => new WeatherForecast
+                    {
+                        DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
+                        TemperatureC = rng.Next(-20, 55),
+                        Summary = Summaries[rng.Next(Summaries.Length)]
+                    }));
+
+                case 3:
+                    // server fault
+                    return StatusCode (500);
+
+                case 4:
+                    // garbage response
+                    return StatusCode (200, "Qb5VfjkQ9dPVj42dprhN");
+            }
+
+            throw new Exception ("Faulty math");
         }
 
         public class WeatherForecast
