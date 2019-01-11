@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { FetchWithTimeout } from '../fetchwithtimeout';
 
 @Component({
   selector: 'app-fetch-data',
@@ -11,26 +12,16 @@ export class FetchDataComponent {
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string)
   {
-    var TimeoutMs = 6000;
-    var TimeIsUp = true;
+    var timeoutMs = 6000;
 
-    new Promise<WeatherForecast[]> ((resolve, reject) =>
-    {
-      setTimeout(() => TimeIsUp && reject (new Error ("timeout")), TimeoutMs);
-
-      http.get<WeatherForecast[]>(baseUrl + 'api/SampleData/WeatherForecasts')
-        .subscribe(
-          result => resolve(result),
-          error => reject(error)
-        );
-    })
-    .then(result =>
-      {
-        TimeIsUp = false;
-        this.forecasts = result;
-      })
-    .catch (error => console.error(error))
-    ;
+    FetchWithTimeout<WeatherForecast[]> (
+        http,
+        baseUrl + 'api/SampleData/WeatherForecasts',
+        timeoutMs
+      )
+      .then (result => this.forecasts = result)
+      .catch (error => console.error(error))
+      ;
   }
 }
 
