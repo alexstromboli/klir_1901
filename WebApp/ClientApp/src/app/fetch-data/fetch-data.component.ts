@@ -12,6 +12,11 @@ export class FetchDataComponent {
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string)
   {
+    this.TryFetchData(http, baseUrl);
+  }
+
+  TryFetchData(http: HttpClient, baseUrl: string): void
+  {
     var timeoutMs = 6000;
 
     FetchWithTimeout<WeatherForecast[]> (
@@ -19,8 +24,22 @@ export class FetchDataComponent {
         baseUrl + 'api/SampleData/WeatherForecasts',
         timeoutMs
       )
-      .then (result => this.forecasts = result)
-      .catch (error => console.error(error))
+      .then (result =>
+        {
+          this.forecasts = result;
+          this.error = null;
+        })
+      .catch (error =>
+        {
+          console.error(error);
+          this.forecasts = null;
+          this.error = error;
+
+          setTimeout(() =>
+          {
+            this.TryFetchData(http, baseUrl);
+          }, 3000);
+        })
       ;
   }
 }
