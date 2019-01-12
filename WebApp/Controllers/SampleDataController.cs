@@ -14,26 +14,25 @@ namespace WebApp.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
+        private enum FaultyResultType
+        {
+            Ok = 0,
+            Long,
+            TooLong,
+            Error500,
+            Garbage
+        }
+
         [HttpGet("[action]")]
         public ActionResult<IEnumerable<WeatherForecast>> WeatherForecasts()
         {
             var rng = new Random();
 
-            int Occasion = rng.Next(21) % 5;
+            FaultyResultType Occasion = (FaultyResultType)(rng.Next(Enum.GetNames (typeof(FaultyResultType)).Length));
 
             switch (Occasion)
             {
-                case 0:
-                    // long
-                    System.Threading.Thread.Sleep (4000);
-                    goto case 2;
-
-                case 1:
-                    // way too long
-                    System.Threading.Thread.Sleep (10000);
-                    goto case 2;
-
-                case 2:
+                case FaultyResultType.Ok:
                     // okay
                     return Ok (Enumerable.Range(1, 6).Select(index => new WeatherForecast
                     {
@@ -42,11 +41,21 @@ namespace WebApp.Controllers
                         Summary = Summaries[rng.Next(Summaries.Length)]
                     }));
 
-                case 3:
+                case FaultyResultType.Long:
+                    // long
+                    System.Threading.Thread.Sleep (4000);
+                    goto case FaultyResultType.Ok;
+
+                case FaultyResultType.TooLong:
+                    // way too long
+                    System.Threading.Thread.Sleep (10000);
+                    goto case FaultyResultType.Ok;
+
+                case FaultyResultType.Error500:
                     // server fault
                     return StatusCode (500);
 
-                case 4:
+                case FaultyResultType.Garbage:
                     // garbage response
                     return StatusCode (200, "Qb5VfjkQ9dPVj42dprhN");
             }
