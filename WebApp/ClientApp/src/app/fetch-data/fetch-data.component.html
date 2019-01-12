@@ -3,7 +3,7 @@
 <p>This component demonstrates fetching data from the server.</p>
 
 <p *ngIf="!forecasts && !error"><em>Loading...</em></p>
-<p *ngIf="error"><em>Error while loading data. Will retry soon...</em></p>
+<p *ngIf="error"><em>Error while loading data. Will retry in {{secondsToRetry}} seconds...</em></p>
 
 <table class='table' *ngIf="forecasts">
   <thead>
