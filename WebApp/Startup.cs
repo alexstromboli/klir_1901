@@ -12,9 +12,13 @@ namespace WebApp
 {
     public class Startup
     {
+        // external weather forecast service URL
+        private string WeatherForecastServiceUrl;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            WeatherForecastServiceUrl = Configuration.GetSection("WeatherForecastServiceUrl").Value;
         }
 
         public IConfiguration Configuration { get; }
@@ -48,6 +52,8 @@ namespace WebApp
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
+            // forwarding API calls
+            #region forwarding API calls
             app.Use(async (context, next) =>
             {
                 if (!context.Request.Path.StartsWithSegments ("/api"))
@@ -58,7 +64,7 @@ namespace WebApp
 
                 try
                 {
-                    HttpWebRequest ProxyRequest = HttpWebRequest.Create("http://localhost:5000" + context.Request.Path) as HttpWebRequest;
+                    HttpWebRequest ProxyRequest = HttpWebRequest.Create(WeatherForecastServiceUrl + context.Request.Path) as HttpWebRequest;
                     ProxyRequest.Method = context.Request.Method;
                     ProxyRequest.Headers["Accept"] = context.Request.Headers["Accept"];
 
@@ -77,6 +83,7 @@ namespace WebApp
                     {
                         context.Response.StatusCode = (int)ProxyResponse.StatusCode;
 
+                        // codes 200, 202, etc.
                         if ((context.Response.StatusCode / 100) == 2)
                         {
                             context.Response.ContentType = ProxyResponse.ContentType;
@@ -93,6 +100,7 @@ namespace WebApp
                     context.Response.StatusCode = 500;
                 }
             });
+            #endregion
 
             app.UseMvc(routes =>
             {
