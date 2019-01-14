@@ -8,7 +8,7 @@ using WebApi.SQLite;
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
-    public class SampleDataController : Controller
+    public class WeatherForecastController : Controller
     {
         private enum FaultyResultType
         {

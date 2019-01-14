@@ -11849,11 +11849,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projects\\test_tasks\\Klir\\WebApi\\WebApi.csproj",
+      "projectUniqueName": "c:\\Projects\\test_tasks\\Klir\\WebApi\\WebApi.csproj",
       "projectName": "WebApi",
-      "projectPath": "C:\\Projects\\test_tasks\\Klir\\WebApi\\WebApi.csproj",
+      "projectPath": "c:\\Projects\\test_tasks\\Klir\\WebApi\\WebApi.csproj",
       "packagesPath": "C:\\Users\\Alexey Piskarev\\.nuget\\packages\\",
-      "outputPath": "C:\\Projects\\test_tasks\\Klir\\WebApi\\obj\\",
+      "outputPath": "c:\\Projects\\test_tasks\\Klir\\WebApi\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

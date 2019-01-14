@@ -30,7 +30,7 @@ export class FetchDataComponent
 
     FetchWithTimeout<WeatherForecast[]> (
         this.http,
-        this.baseUrl + 'api/SampleData/WeatherForecasts',
+        this.baseUrl + 'api/WeatherForecast/WeatherForecasts',
         timeoutMs
       )
       .then (result =>
