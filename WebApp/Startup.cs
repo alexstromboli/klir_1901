@@ -1,3 +1,5 @@
+using System.IO;
+using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -45,6 +47,52 @@ namespace WebApp
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            app.Use(async (context, next) =>
+            {
+                if (!context.Request.Path.StartsWithSegments ("/api"))
+                {
+                    await next.Invoke();
+                    return;
+                }
+
+                try
+                {
+                    HttpWebRequest ProxyRequest = HttpWebRequest.Create("http://localhost:5000" + context.Request.Path) as HttpWebRequest;
+                    ProxyRequest.Method = context.Request.Method;
+                    ProxyRequest.Headers["Accept"] = context.Request.Headers["Accept"];
+
+                    if (context.Request.Method != "GET")
+                    {
+                        ProxyRequest.ContentType = context.Request.ContentType;
+                        ProxyRequest.ContentLength = context.Request.ContentLength ?? 0;
+
+                        using (Stream ProxyRequestStream = await ProxyRequest.GetRequestStreamAsync ())
+                        {
+                            await context.Request.Body.CopyToAsync(ProxyRequestStream);
+                        }
+                    }
+
+                    using (HttpWebResponse ProxyResponse = await ProxyRequest.GetResponseAsync () as HttpWebResponse)
+                    {
+                        context.Response.StatusCode = (int)ProxyResponse.StatusCode;
+
+                        if ((context.Response.StatusCode / 100) == 2)
+                        {
+                            context.Response.ContentType = ProxyResponse.ContentType;
+
+                            using (Stream ProxyResponseStream = ProxyResponse.GetResponseStream ())
+                            {
+                                await ProxyResponseStream.CopyToAsync(context.Response.Body);
+                            }
+                        }
+                    }
+                }
+                catch (System.Exception)
+                {
+                    context.Response.StatusCode = 500;
+                }
+            });
 
             app.UseMvc(routes =>
             {
