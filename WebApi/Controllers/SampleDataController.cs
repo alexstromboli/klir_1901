@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.SQLite;
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     public class SampleDataController : Controller
     {
-        private static string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private enum FaultyResultType
         {
             Ok = 0,
@@ -34,12 +30,24 @@ namespace WebApi.Controllers
             {
                 case FaultyResultType.Ok:
                     // okay
-                    return Ok (Enumerable.Range(1, 6).Select(index => new WeatherForecast
+                    WeatherForecast[] Result;
+                    using (var db = new WeatherForecastContext())
                     {
-                        DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
-                        TemperatureC = rng.Next(-20, 55),
-                        Summary = Summaries[rng.Next(Summaries.Length)]
-                    }));
+                        Result = db.WeatherForecasts
+                        .OrderBy(wf => wf.Date)
+                        .Skip(rng.Next(10))
+                        .Take(6)
+                        .Select (wf => new WeatherForecast
+                        {
+                            DateFormatted = wf.Date.ToString("d"),
+                            TemperatureC = wf.TemperatureC,
+                            Summary = wf.Summary
+                        })
+                        .ToArray()
+                        ;
+                    }
+
+                    return Ok (Result);
 
                 case FaultyResultType.Long:
                     // long
